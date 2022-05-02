@@ -1,10 +1,9 @@
-# src/api/views.py
+# src/api/users/views.py
 
 
 from flask import Blueprint, request
-from flask_restx import Api, Resource, fields
+from flask_restx import Namespace, Resource, fields
 
-# new
 from src.api.users.crud import (  # isort:skip
     get_all_users,
     get_user_by_email,
@@ -14,11 +13,10 @@ from src.api.users.crud import (  # isort:skip
     delete_user,
 )
 
-users_blueprint = Blueprint("users", __name__)
-api = Api(users_blueprint)
+users_namespace = Namespace("users")
 
 
-user = api.model(
+user = users_namespace.model(
     "User",
     {
         "id": fields.Integer(readOnly=True),
@@ -30,68 +28,82 @@ user = api.model(
 
 
 class UsersList(Resource):
-    @api.marshal_with(user, as_list=True)
+    @users_namespace.marshal_with(user, as_list=True)
     def get(self):
-        return get_all_users(), 200  # updated
+        """Returns all users."""  # new
+        return get_all_users(), 200
 
-    @api.expect(user, validate=True)
+    @users_namespace.expect(user, validate=True)
+    @users_namespace.response(201, "<user_email> was added!")  # new
+    @users_namespace.response(400, "Sorry. That email already exists.")  # new
     def post(self):
+        """Creates a new user."""  # new
         post_data = request.get_json()
         username = post_data.get("username")
         email = post_data.get("email")
         response_object = {}
 
-        user = get_user_by_email(email)  # updated
+        user = get_user_by_email(email)
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
 
-        add_user(username, email)  # new
+        add_user(username, email)
 
         response_object["message"] = f"{email} was added!"
         return response_object, 201
 
 
 class Users(Resource):
-    @api.marshal_with(user)
+    @users_namespace.marshal_with(user)
+    @users_namespace.response(200, "Success")  # new
+    @users_namespace.response(404, "User <user_id> does not exist")  # new
     def get(self, user_id):
-        user = get_user_by_id(user_id)  # updated
+        """Returns a single user."""  # new
+        user = get_user_by_id(user_id)
         if not user:
-            api.abort(404, f"User {user_id} does not exist")
+            users_namespace.abort(404, f"User {user_id} does not exist")
         return user, 200
 
-    @api.expect(user, validate=True)
+    @users_namespace.expect(user, validate=True)
+    @users_namespace.response(200, "<user_id> was updated!")  # new
+    @users_namespace.response(400, "Sorry. That email already exists.")  # new
+    @users_namespace.response(404, "User <user_id> does not exist")  # new
     def put(self, user_id):
+        """Updates a user."""  # new
         post_data = request.get_json()
         username = post_data.get("username")
         email = post_data.get("email")
         response_object = {}
 
-        user = get_user_by_id(user_id)  # updated
+        user = get_user_by_id(user_id)
         if not user:
-            api.abort(404, f"User {user_id} does not exist")
+            users_namespace.abort(404, f"User {user_id} does not exist")
 
-        if get_user_by_email(email):  # updated
+        if get_user_by_email(email):
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
 
-        update_user(user, username, email)  # new
+        update_user(user, username, email)
 
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
+    @users_namespace.response(200, "<user_id> was removed!")  # new
+    @users_namespace.response(404, "User <user_id> does not exist")  # new
     def delete(self, user_id):
+        """ "Deletes a user."""  # new
         response_object = {}
-        user = get_user_by_id(user_id)  # updated
+        user = get_user_by_id(user_id)
 
         if not user:
-            api.abort(404, f"User {user_id} does not exist")
+            users_namespace.abort(404, f"User {user_id} does not exist")
 
-        delete_user(user)  # new
+        delete_user(user)
 
         response_object["message"] = f"{user.email} was removed!"
         return response_object, 200
 
 
-api.add_resource(UsersList, "/users")
-api.add_resource(Users, "/users/<int:user_id>")
+users_namespace.add_resource(UsersList, "")
+users_namespace.add_resource(Users, "/<int:user_id>")
