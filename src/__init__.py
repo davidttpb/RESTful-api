@@ -1,14 +1,21 @@
+# src/__init__.py
+
+
 import os
 
-from flask import Flask  # new
+from flask import Flask
+from flask_admin import Admin  # new
 from flask_sqlalchemy import SQLAlchemy
 
-# instantiate the db
+
+# instantiate the extensions
 db = SQLAlchemy()
-
-
 # new
+admin = Admin(template_mode="bootstrap3")
+
+
 def create_app(script_info=None):
+
     # instantiate the app
     app = Flask(__name__)
 
@@ -18,12 +25,15 @@ def create_app(script_info=None):
 
     # set up extensions
     db.init_app(app)
+    # new
+    if os.getenv("FLASK_ENV") == "development":
+        admin.init_app(app)
 
     # register blueprints
     from src.api.ping import ping_blueprint
 
     app.register_blueprint(ping_blueprint)
-    from src.api.users import users_blueprint
+    from src.api.users.views import users_blueprint
 
     app.register_blueprint(users_blueprint)
 

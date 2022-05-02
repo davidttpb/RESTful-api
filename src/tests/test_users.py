@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.api.models import User
+from src.api.users.models import User
 
 
 def test_add_user(test_app, test_database):

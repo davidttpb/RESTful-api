@@ -1,11 +1,11 @@
-# src/api/users.py
+# src/api/views.py
 
 
 from flask import Blueprint, request
 from flask_restx import Api, Resource, fields
 
 # new
-from src.api.crud import (  # isort:skip
+from src.api.users.crud import (  # isort:skip
     get_all_users,
     get_user_by_email,
     add_user,
