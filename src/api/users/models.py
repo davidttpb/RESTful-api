@@ -2,8 +2,8 @@
 
 import os
 
-from sqlalchemy.sql import func
 from flask_admin.contrib.sqla import ModelView
+from sqlalchemy.sql import func
 
 from src import db
 
