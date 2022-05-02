@@ -7,8 +7,7 @@ WORKDIR /usr/src/app
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV FLASK_ENV production
-ENV APP_SETTINGS src.config.ProductionConfig
+
 
 
 # new
@@ -30,10 +29,3 @@ COPY ./entrypoint.sh .
 RUN chmod +x /usr/src/app/entrypoint.sh
 
 
-# add and run as non-root user
-RUN adduser --disabled-password myuser
-USER myuser
-
-
-# run gunicorn
-CMD gunicorn --bind 0.0.0.0:$PORT manage:app

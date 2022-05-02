@@ -1,3 +1,6 @@
 venv
 Dockerfile
 Dockerfile.prod
+.coverage
+.coveragerc
+htmlcov

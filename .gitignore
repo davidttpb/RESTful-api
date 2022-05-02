@@ -2,5 +2,4 @@ __pycache__
 venv
 .coveragerc
 .coverage
-.idea
-flask-tdd-docker.iml
+htmlcov
