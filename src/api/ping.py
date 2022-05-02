@@ -8,7 +8,7 @@ ping_namespace = Namespace("ping")  # new
 
 class Ping(Resource):
     def get(self):
-        return {"status": "success", "message": "pong"}
+        return {"status": "success", "message": "pongG"}
 
 
 ping_namespace.add_resource(Ping, "")  # updated
