@@ -21,6 +21,7 @@ build:
       --cache-from $IMAGE:latest
       --tag $IMAGE:latest
       --file ./Dockerfile.prod
+      --build-arg SECRET_KEY=$SECRET_KEY
       "."
     - docker push $IMAGE:latest
 
@@ -35,6 +36,10 @@ test:
     POSTGRES_PASSWORD: runner
     DATABASE_TEST_URL: postgresql://runner:runner@postgres:5432/users
   script:
+    - python3.10 -m venv env
+    - source env/bin/activate
+    - pip install -r requirements.txt
+    - pip install black==22.3.0 flake8==4.0.1 isort==5.10.1 pytest==7.1.1
     - pytest "src/tests" -p no:warnings
     - flake8 src
     - black src --check
@@ -46,7 +51,7 @@ deploy:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-    HEROKU_APP_NAME: <APP_NAME>
+    HEROKU_APP_NAME: rocky-spire-25432
     HEROKU_REGISTRY_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
   script:
     - apk add --no-cache curl
@@ -54,6 +59,7 @@ deploy:
     - docker build
       --tag $HEROKU_REGISTRY_IMAGE
       --file ./Dockerfile.prod
+      --build-arg SECRET_KEY=$SECRET_KEY
       "."
     - docker login -u _ -p $HEROKU_AUTH_TOKEN registry.heroku.com
     - docker push $HEROKU_REGISTRY_IMAGE
