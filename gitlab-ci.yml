@@ -52,7 +52,7 @@ deploy:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-    HEROKU_APP_NAME: rocky-spire-25432
+    HEROKU_APP_NAME: sleepy-ravine-13948
     HEROKU_REGISTRY_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
   script:
     - apk add --no-cache curl
